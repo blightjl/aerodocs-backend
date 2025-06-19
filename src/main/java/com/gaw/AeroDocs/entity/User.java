@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-// import com.gaw.AeroDocs.entity.UserFavorite;;
-
 @Entity
 @Table(name = "users")
 @Getter
