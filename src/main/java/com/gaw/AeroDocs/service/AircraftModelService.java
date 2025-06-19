@@ -3,7 +3,10 @@ package com.gaw.AeroDocs.service;
 import org.springframework.stereotype.Service;
 
 import com.gaw.AeroDocs.entity.AircraftModel;
+import com.gaw.AeroDocs.entity.User;
 import com.gaw.AeroDocs.repository.AircraftModelRepository;
+
+import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,15 +38,16 @@ public class AircraftModelService {
         return this.aircraftModelRepository.findAll();
     }
 
-    // public Optional<User> getUser(String username) {
-    //     return this.userRepository.findById(username);
-    // }
+    public Optional<AircraftModel> getAircraftModel(String fullModelName) {
+        return this.aircraftModelRepository.findByFullModelName(fullModelName);
+    }
 
-    // public boolean deleteUser(String username) {
-    //     if (!this.userRepository.existsById(username)) {
-    //         return false;
-    //     }
-    //     this.userRepository.deleteById(username);
-    //     return true;
-    // }
+    @Transactional
+    public boolean deleteAircraftModel(String fullModelName) {
+        if (!this.aircraftModelRepository.findByFullModelName(fullModelName).isPresent()) {
+            return false;
+        }
+        this.aircraftModelRepository.deleteByModelIdentifier(fullModelName);
+        return true;
+    }
 }

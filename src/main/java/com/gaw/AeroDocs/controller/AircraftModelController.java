@@ -42,33 +42,23 @@ public class AircraftModelController {
         return ResponseEntity.status(HttpStatus.OK).body(aircraftModel);
     }
 
-    // @GetMapping("/aircrafts/{aircraft_model_id}")
-    // public ResponseEntity<AircraftModel> getAircraftModel(@PathVariable UUID aircraft_model_id) {
-    //     // TODO: add implementation with Optional
-    //     return ResponseEntity.status(HttpStatus.OK);
-    // }
-
     @GetMapping("/aircrafts")
     public ResponseEntity<List<AircraftModel>> getAircraftModels() {
         List<AircraftModel> aircraftModelsList = this.aircraftModelService.getAircraftModels();
         return ResponseEntity.status(HttpStatus.OK).body(aircraftModelsList);
     }
 
-    // @PatchMapping("/aircrafts/{aircraft_model_id}")
-    // public ResponseEntity<Integer> updateAircraftModel(@PathVariable UUID aircraft_model_id) {
-    //     if (this.aircraftModelService.updateMessage(Integer.parseInt(message_id), message)) {
-    //         return ResponseEntity.status(HttpStatus.OK).body(1);
-    //     } else {
-    //         return ResponseEntity.status(400).body(0);
-    //     }
-    // }
+    @GetMapping("/aircrafts/{full_model_name}")
+    public ResponseEntity<AircraftModel> getAircraftModel(@PathVariable String full_model_name) {
+        Optional<AircraftModel> aircraftModel = this.aircraftModelService.getAircraftModel(full_model_name);
+        return ResponseEntity.status(HttpStatus.OK).body(aircraftModel.get());
+    }
 
-    // @DeleteMapping("/aircrafts/{aircraft_model_id}")
-    // public ResponseEntity<Integer> deleteAircraftModel(@PathVariable UUID aircraft_model_id) {
-    //     if (this.aircraftModelService.updateMessage(Integer.parseInt(message_id), message)) {
-    //         return ResponseEntity.status(HttpStatus.OK).body(1);
-    //     } else {
-    //         return ResponseEntity.status(400).body(0);
-    //     }
-    // }
+    @DeleteMapping("/aircrafts/{full_model_name}")
+    public ResponseEntity<Integer> deleteAircraftModel(@PathVariable String full_model_name) {
+        if (this.aircraftModelService.deleteAircraftModel(full_model_name)) {
+            return ResponseEntity.status(200).body(1);
+        }
+        return ResponseEntity.status(200).build();
+    }
 }

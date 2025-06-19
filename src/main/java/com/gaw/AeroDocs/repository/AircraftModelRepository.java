@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -16,4 +17,11 @@ public interface AircraftModelRepository extends JpaRepository<AircraftModel, St
 
     @Query("SELECT a from AircraftModel a WHERE a.manufacturer = :manufacturer AND a.model = :model AND a.variant = :variant")
     Optional<AircraftModel> findByManufacturerModelAndVariant(@Param("manufacturer") String manufacturer, @Param("model") String model, @Param("variant") String variant);
+
+    @Query("SELECT a from AircraftModel a WHERE a.fullModelName = :fullModelName")
+    Optional<AircraftModel> findByFullModelName(@Param("fullModelName") String fullModelName);
+
+    @Modifying
+    @Query("DELETE FROM AircraftModel a WHERE a.fullModelName = :fullModelName")
+    void deleteByModelIdentifier(@Param("fullModelName") String fullModelName);
 }
