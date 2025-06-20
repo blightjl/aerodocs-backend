@@ -35,7 +35,7 @@ public class User {
         joinColumns = @JoinColumn(name = "username", referencedColumnName = "username"),
         inverseJoinColumns = @JoinColumn(name = "full_model_name", referencedColumnName = "full_model_name")
     )
-    private Set<AircraftModel> favoriteAircraftModels = new HashSet<>();
+    private Set<AircraftModel> favoriteAircraftModels;
 
     public void addFavoriteAircraftModel(AircraftModel model) {
         if (this.favoriteAircraftModels == null) {
