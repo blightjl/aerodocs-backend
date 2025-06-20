@@ -4,7 +4,12 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.Serializable;
 
 @Entity
@@ -17,21 +22,25 @@ import java.io.Serializable;
 public class AircraftModel {
     @Id
     @NotBlank(message = "Manufacturer is required")
-    @Column(length = 100)
+    @Column(length = 255, nullable = false)
     private String manufacturer;
 
     @Id
     @NotBlank(message = "Model is required")
-    @Column(length = 100)
+    @Column(length = 255, nullable = false)
     private String model;
 
     @Id
     @NotBlank(message = "Variant is required")
-    @Column(length = 100)
+    @Column(length = 255, nullable = false)
     private String variant;
 
-    @Column(name = "full_model_name", insertable = false, updatable = false)
+    @Column(name = "full_model_name", unique = true, insertable = false, updatable = false)
     private String fullModelName;
+
+    @ManyToMany(mappedBy = "favoriteAircraftModels", fetch = FetchType.LAZY)
+    // alternatively use @JsonIgnore
+    private Set<User> favoritedByUsers = new HashSet<>();
 }
 
 @Embeddable

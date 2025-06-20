@@ -3,6 +3,7 @@ package com.gaw.AeroDocs.controller;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gaw.AeroDocs.entity.AircraftModel;
+import com.gaw.AeroDocs.dto.AircraftModelDTO;
+
 import com.gaw.AeroDocs.entity.User;
 import com.gaw.AeroDocs.service.AircraftModelService;
 
@@ -43,15 +46,16 @@ public class AircraftModelController {
     }
 
     @GetMapping("/aircrafts")
-    public ResponseEntity<List<AircraftModel>> getAircraftModels() {
+    public ResponseEntity<List<AircraftModelDTO>> getAircraftModels() {
         List<AircraftModel> aircraftModelsList = this.aircraftModelService.getAircraftModels();
-        return ResponseEntity.status(HttpStatus.OK).body(aircraftModelsList);
+        List<AircraftModelDTO> aircraftModelsDTOList = aircraftModelsList.stream().map(this::toDTO).collect(Collectors.toList());
+        return ResponseEntity.status(HttpStatus.OK).body(aircraftModelsDTOList);
     }
 
     @GetMapping("/aircrafts/{full_model_name}")
-    public ResponseEntity<AircraftModel> getAircraftModel(@PathVariable String full_model_name) {
+    public ResponseEntity<AircraftModelDTO> getAircraftModel(@PathVariable String full_model_name) {
         Optional<AircraftModel> aircraftModel = this.aircraftModelService.getAircraftModel(full_model_name);
-        return ResponseEntity.status(HttpStatus.OK).body(aircraftModel.get());
+        return ResponseEntity.status(HttpStatus.OK).body(aircraftModel.isPresent() ? this.toDTO(aircraftModel.get()) : null);
     }
 
     @DeleteMapping("/aircrafts/{full_model_name}")
@@ -60,5 +64,9 @@ public class AircraftModelController {
             return ResponseEntity.status(200).body(1);
         }
         return ResponseEntity.status(200).build();
+    }
+
+    private AircraftModelDTO toDTO(AircraftModel aircraftModel) {
+        return new AircraftModelDTO(aircraftModel.getManufacturer(), aircraftModel.getModel(), aircraftModel.getVariant(), aircraftModel.getFullModelName());
     }
 }
