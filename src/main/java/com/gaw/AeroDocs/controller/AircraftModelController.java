@@ -3,6 +3,7 @@ package com.gaw.AeroDocs.controller;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gaw.AeroDocs.entity.AircraftModel;
+import com.gaw.AeroDocs.dto.AircraftModelDTO;
+
 import com.gaw.AeroDocs.entity.User;
 import com.gaw.AeroDocs.service.AircraftModelService;
 
@@ -31,31 +34,31 @@ public class AircraftModelController {
     }
 
     @PostMapping("/aircrafts")
-    public ResponseEntity<AircraftModel> postAircraftModel(@RequestBody AircraftModel aircraftModel) {
+    public ResponseEntity<AircraftModelDTO> postAircraftModel(@RequestBody AircraftModel aircraftModel) {
         if (this.aircraftModelService.fullModelNameExists(aircraftModel.getManufacturer(), aircraftModel.getModel(), aircraftModel.getVariant())) {
-            return ResponseEntity.status(409).body(aircraftModel);
+            return ResponseEntity.status(409).build();
         }
-        AircraftModel createdAircraftModel = this.aircraftModelService.addAircraftModel(aircraftModel);
+        AircraftModelDTO createdAircraftModel = this.aircraftModelService.addAircraftModel(aircraftModel);
         if (createdAircraftModel == null) {
-            return ResponseEntity.status(400).body(aircraftModel);
+            return ResponseEntity.status(400).body(createdAircraftModel);
         }
-        return ResponseEntity.status(HttpStatus.OK).body(aircraftModel);
+        return ResponseEntity.status(HttpStatus.OK).body(createdAircraftModel);
     }
 
     @GetMapping("/aircrafts")
-    public ResponseEntity<List<AircraftModel>> getAircraftModels() {
-        List<AircraftModel> aircraftModelsList = this.aircraftModelService.getAircraftModels();
-        return ResponseEntity.status(HttpStatus.OK).body(aircraftModelsList);
+    public ResponseEntity<List<AircraftModelDTO>> getAircraftModels() {
+        List<AircraftModelDTO> aircraftModelsDTOList = this.aircraftModelService.getAircraftModels();
+        return ResponseEntity.status(HttpStatus.OK).body(aircraftModelsDTOList);
     }
 
     @GetMapping("/aircrafts/{full_model_name}")
-    public ResponseEntity<AircraftModel> getAircraftModel(@PathVariable String full_model_name) {
-        Optional<AircraftModel> aircraftModel = this.aircraftModelService.getAircraftModel(full_model_name);
-        return ResponseEntity.status(HttpStatus.OK).body(aircraftModel.get());
+    public ResponseEntity<AircraftModelDTO> getAircraftModel(@PathVariable String full_model_name) {
+        Optional<AircraftModelDTO> aircraftModelDTO = this.aircraftModelService.getAircraftModel(full_model_name);
+        return ResponseEntity.status(HttpStatus.OK).body(aircraftModelDTO.isPresent() ? aircraftModelDTO.get() : null);
     }
 
-    @DeleteMapping("/aircrafts/{full_model_name}")
-    public ResponseEntity<Integer> deleteAircraftModel(@PathVariable String full_model_name) {
+    @DeleteMapping("/aircrafts")
+    public ResponseEntity<Integer> deleteAircraftModel(@RequestBody String full_model_name) {
         if (this.aircraftModelService.deleteAircraftModel(full_model_name)) {
             return ResponseEntity.status(200).body(1);
         }
