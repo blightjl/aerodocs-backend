@@ -13,8 +13,8 @@ CREATE TABLE aircraft_models (
     model VARCHAR(255) NOT NULL,
     variant VARCHAR(255) NOT NULL,
     full_model_name VARCHAR(255) GENERATED ALWAYS AS (manufacturer || '-' || model || '-' || variant) STORED,
-    PRIMARY KEY (manufacturer, model, variant),
-    UNIQUE (full_model_name)
+    PRIMARY KEY (full_model_name),
+    UNIQUE (manufacturer, model, variant)
 );
 
 DROP TABLE IF EXISTS user_favorite_models CASCADE;

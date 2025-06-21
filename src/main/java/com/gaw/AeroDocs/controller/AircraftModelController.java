@@ -34,28 +34,27 @@ public class AircraftModelController {
     }
 
     @PostMapping("/aircrafts")
-    public ResponseEntity<AircraftModel> postAircraftModel(@RequestBody AircraftModel aircraftModel) {
+    public ResponseEntity<AircraftModelDTO> postAircraftModel(@RequestBody AircraftModel aircraftModel) {
         if (this.aircraftModelService.fullModelNameExists(aircraftModel.getManufacturer(), aircraftModel.getModel(), aircraftModel.getVariant())) {
-            return ResponseEntity.status(409).body(aircraftModel);
+            return ResponseEntity.status(409).build();
         }
-        AircraftModel createdAircraftModel = this.aircraftModelService.addAircraftModel(aircraftModel);
+        AircraftModelDTO createdAircraftModel = this.aircraftModelService.addAircraftModel(aircraftModel);
         if (createdAircraftModel == null) {
-            return ResponseEntity.status(400).body(aircraftModel);
+            return ResponseEntity.status(400).body(createdAircraftModel);
         }
-        return ResponseEntity.status(HttpStatus.OK).body(aircraftModel);
+        return ResponseEntity.status(HttpStatus.OK).body(createdAircraftModel);
     }
 
     @GetMapping("/aircrafts")
     public ResponseEntity<List<AircraftModelDTO>> getAircraftModels() {
-        List<AircraftModel> aircraftModelsList = this.aircraftModelService.getAircraftModels();
-        List<AircraftModelDTO> aircraftModelsDTOList = aircraftModelsList.stream().map(this::toDTO).collect(Collectors.toList());
+        List<AircraftModelDTO> aircraftModelsDTOList = this.aircraftModelService.getAircraftModels();
         return ResponseEntity.status(HttpStatus.OK).body(aircraftModelsDTOList);
     }
 
     @GetMapping("/aircrafts/{full_model_name}")
     public ResponseEntity<AircraftModelDTO> getAircraftModel(@PathVariable String full_model_name) {
-        Optional<AircraftModel> aircraftModel = this.aircraftModelService.getAircraftModel(full_model_name);
-        return ResponseEntity.status(HttpStatus.OK).body(aircraftModel.isPresent() ? this.toDTO(aircraftModel.get()) : null);
+        Optional<AircraftModelDTO> aircraftModelDTO = this.aircraftModelService.getAircraftModel(full_model_name);
+        return ResponseEntity.status(HttpStatus.OK).body(aircraftModelDTO.isPresent() ? aircraftModelDTO.get() : null);
     }
 
     @DeleteMapping("/aircrafts/{full_model_name}")
@@ -64,9 +63,5 @@ public class AircraftModelController {
             return ResponseEntity.status(200).body(1);
         }
         return ResponseEntity.status(200).build();
-    }
-
-    private AircraftModelDTO toDTO(AircraftModel aircraftModel) {
-        return new AircraftModelDTO(aircraftModel.getManufacturer(), aircraftModel.getModel(), aircraftModel.getVariant(), aircraftModel.getFullModelName());
     }
 }

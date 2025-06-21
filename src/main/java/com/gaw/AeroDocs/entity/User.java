@@ -29,11 +29,13 @@ public class User {
     @Email(message = "Email must be valid")
     private String email;
 
-    @ManyToMany
-    @JoinTable(
-        name = "user_favorite_models",
-        joinColumns = @JoinColumn(name = "username", referencedColumnName = "username"),
-        inverseJoinColumns = @JoinColumn(name = "full_model_name", referencedColumnName = "full_model_name")
+    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @JoinTable
+    (name = "user_favorite_models", 
+    joinColumns = @JoinColumn(name = "username", referencedColumnName = "username"), 
+    inverseJoinColumns = {
+        @JoinColumn(name = "full_model_name", referencedColumnName = "full_model_name")
+    }
     )
     private Set<AircraftModel> favoriteAircraftModels;
 

@@ -14,60 +14,40 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "aircraft_models")
-@IdClass(AircraftModelId.class)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class AircraftModel {
     @Id
+    @Column(name = "full_model_name", unique = true, nullable = false, insertable = false, updatable = false)
+    private String fullModelName;
+
     @NotBlank(message = "Manufacturer is required")
     @Column(length = 255, nullable = false)
     private String manufacturer;
 
-    @Id
     @NotBlank(message = "Model is required")
     @Column(length = 255, nullable = false)
     private String model;
 
-    @Id
     @NotBlank(message = "Variant is required")
     @Column(length = 255, nullable = false)
     private String variant;
 
-    @Column(name = "full_model_name", unique = true, insertable = false, updatable = false)
-    private String fullModelName;
-
-    @ManyToMany(mappedBy = "favoriteAircraftModels", fetch = FetchType.LAZY)
-    // alternatively use @JsonIgnore
+    @ManyToMany(mappedBy = "favoriteAircraftModels", fetch = FetchType.LAZY)    // alternatively use @JsonIgnore
     private Set<User> favoritedByUsers = new HashSet<>();
-}
-
-@Embeddable
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-class AircraftModelId implements Serializable {
-    @Column(nullable = false, length = 255)
-    private String manufacturer;
-    @Column(nullable = false, length = 255)
-    private String model;
-    @Column(nullable = false, length = 255)
-    private String variant;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null | getClass() != o.getClass()) return false;
-        AircraftModelId that = (AircraftModelId) o;
-        return manufacturer.equals(that.getManufacturer()) &&
-                model.equals(that.getModel()) &&
-                variant.equals(that.getVariant());
+        AircraftModel that = (AircraftModel) o;
+        return fullModelName.equals(that.getFullModelName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(manufacturer, model, variant);
+        return Objects.hash(fullModelName);
     }
 }

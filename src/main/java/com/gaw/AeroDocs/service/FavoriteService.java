@@ -12,6 +12,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.gaw.AeroDocs.dto.AircraftModelDTO;
+import com.gaw.AeroDocs.dto.UserDTO;
+
+import com.gaw.AeroDocs.mapper.UserMapper;
+import com.gaw.AeroDocs.mapper.AircraftMapper;
+
+
 @Service
 public class FavoriteService {
     private UserRepository userRepository;
@@ -24,7 +31,7 @@ public class FavoriteService {
     }
 
     @Transactional
-    public User addFavoriteModel(String username, String fullModelName) {
+    public UserDTO addFavoriteModel(String username, String fullModelName) {
         Optional<User> optionalUser = userRepository.findById(username);
         if (optionalUser.isEmpty()) {
             return null;
@@ -35,45 +42,59 @@ public class FavoriteService {
         if (optionalModel.isEmpty()) {
             return null;
         }
+
         AircraftModel model = optionalModel.get();
 
         if (user.getFavoriteAircraftModels().contains(model)) {
-            return user;
+            return UserMapper.toUserDTO(user);
         }
         user.addFavoriteAircraftModel(model);
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        return UserMapper.toUserDTO(savedUser);
     }
 
     @Transactional
-    public User removeFavoriteModel(String username, String fullModelName) {
+    public UserDTO removeFavoriteModel(String username, String fullModelName) {
+        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        System.out.println(username);
+        System.out.println(fullModelName);
         Optional<User> optionalUser = userRepository.findById(username);
         if (optionalUser.isEmpty()) {
+            System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+            System.out.println("Failed to find " + username);
             return null;
         }
         User user = optionalUser.get();
 
         Optional<AircraftModel> optionalModel = aircraftModelRepository.findByFullModelName(fullModelName);
         if (optionalModel.isEmpty()) {
+            System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+            System.out.println("Failed to find " + fullModelName);
             return null;
         }
         AircraftModel model = optionalModel.get();
 
         if (!user.getFavoriteAircraftModels().contains(model)) {
-            return user;
+            return UserMapper.toUserDTO(user);
         }
         user.removeFavoriteAircraftModel(model);
-        return userRepository.save(user);
+        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        System.out.println("Removed " + fullModelName);
+        User savedUser = userRepository.save(user);
+        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        System.out.println("Saved " + username);
+        return UserMapper.toUserDTO(savedUser);
     }
 
     @Transactional(readOnly = true)
-    public Set<AircraftModel> getUserFavoriteModels(String username) {
+    public Set<AircraftModelDTO> getUserFavoriteModels(String username) {
         Optional<User> optionalUser = userRepository.findById(username);
         if (optionalUser.isEmpty()) {
             return Set.of();
         }
         User user = optionalUser.get();
 
-        return user.getFavoriteAircraftModels();
+        return user.getFavoriteAircraftModels().stream().map(AircraftMapper::toAircraftDTO).collect(Collectors.toSet());
     }
 
     @Transactional(readOnly = true)

@@ -26,6 +26,8 @@ import com.gaw.AeroDocs.dto.UserDTO;
 import com.gaw.AeroDocs.service.UserService;
 import com.gaw.AeroDocs.service.FavoriteService;
 
+import com.gaw.AeroDocs.mapper.UserMapper;
+import com.gaw.AeroDocs.mapper.AircraftMapper;
 
 @RestController
 public class UserController {
@@ -41,26 +43,25 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<UserDTO> postUser(@RequestBody User user) {
         if (this.userService.userExists(user.getUsername())) {
-            return ResponseEntity.status(409).body(this.toUserDTO(user));
+            return ResponseEntity.status(409).body(UserMapper.toUserDTO(user));
         }
-        User createdUser = this.userService.registerUser(user);
+        UserDTO createdUser = this.userService.registerUser(user);
         if (createdUser == null) {
-            return ResponseEntity.status(400).body(this.toUserDTO(user));
+            return ResponseEntity.status(400).body(createdUser);
         }
-        return ResponseEntity.status(HttpStatus.OK).body(this.toUserDTO(user));
+        return ResponseEntity.status(HttpStatus.OK).body(createdUser);
     }
 
     @GetMapping("/users")
     public ResponseEntity<List<UserDTO>> getUsers() {
-        List<User> userList = this.userService.getUsers();
-        List<UserDTO> userDTOList = userList.stream().map(this::toUserDTO).collect(Collectors.toList());
+        List<UserDTO> userDTOList = this.userService.getUsers();
         return ResponseEntity.status(HttpStatus.OK).body(userDTOList);
     }
 
     @GetMapping("/users/{username}")
     public ResponseEntity<UserDTO> getUser(@PathVariable String username) {
-        Optional<User> optionalUser = this.userService.getUser(username);
-        return ResponseEntity.status(HttpStatus.OK).body(optionalUser.isPresent() ? this.toUserDTO(optionalUser.get()) : null);
+        Optional<UserDTO> optionalUser = this.userService.getUser(username);
+        return ResponseEntity.status(HttpStatus.OK).body(optionalUser.isPresent() ? optionalUser.get() : null);
     }
 
     @DeleteMapping("/users/{username}")
@@ -73,38 +74,29 @@ public class UserController {
 
     @GetMapping("/users/{username}/favorites")
     public ResponseEntity<Set<AircraftModelDTO>> getUserFavorites(@PathVariable String username) {
-        Set<AircraftModel> favoriteAircraftModels = this.favoriteService.getUserFavoriteModels(username);
-        if (favoriteAircraftModels == null) {
+        Set<AircraftModelDTO> favoriteAircraftModelDTOs = this.favoriteService.getUserFavoriteModels(username);
+        if (favoriteAircraftModelDTOs == null) {
             return ResponseEntity.notFound().build();
         }
-        Set<AircraftModelDTO> favoriteAircraftModelDTOs = favoriteAircraftModels.stream().map(this::toAircraftDTO).collect(Collectors.toSet());
         return ResponseEntity.ok(favoriteAircraftModelDTOs);
     }
 
     @PostMapping("/users/{username}/favorites")
     public ResponseEntity<UserDTO> addFavorite(@PathVariable String username, @RequestBody String fullModelName) {
         System.out.println(fullModelName);
-        User updatedUser = this.favoriteService.addFavoriteModel(username, fullModelName);
+        UserDTO updatedUser = this.favoriteService.addFavoriteModel(username, fullModelName);
         if (updatedUser == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(this.toUserDTO(updatedUser));
+        return ResponseEntity.ok(updatedUser);
     }
 
     @DeleteMapping("/users/{username}/favorites")
     public ResponseEntity<UserDTO> removeFavorite(@PathVariable String username, @RequestBody String fullModelName) {
-        User updatedUser = this.favoriteService.removeFavoriteModel(username, fullModelName);
+        UserDTO updatedUser = this.favoriteService.removeFavoriteModel(username, fullModelName);
         if (updatedUser == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(this.toUserDTO(updatedUser));
-    }
-
-    private UserDTO toUserDTO(User user) {
-        return new UserDTO(user.getUsername(), user.getEmail());
-    }
-
-    private AircraftModelDTO toAircraftDTO(AircraftModel aircraftModel) {
-        return new AircraftModelDTO(aircraftModel.getManufacturer(), aircraftModel.getModel(), aircraftModel.getVariant(), aircraftModel.getFullModelName());
+        return ResponseEntity.ok(updatedUser);
     }
 }
