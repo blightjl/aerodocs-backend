@@ -57,8 +57,8 @@ public class AircraftModelController {
         return ResponseEntity.status(HttpStatus.OK).body(aircraftModelDTO.isPresent() ? aircraftModelDTO.get() : null);
     }
 
-    @DeleteMapping("/aircrafts/{full_model_name}")
-    public ResponseEntity<Integer> deleteAircraftModel(@PathVariable String full_model_name) {
+    @DeleteMapping("/aircrafts")
+    public ResponseEntity<Integer> deleteAircraftModel(@RequestBody String full_model_name) {
         if (this.aircraftModelService.deleteAircraftModel(full_model_name)) {
             return ResponseEntity.status(200).body(1);
         }

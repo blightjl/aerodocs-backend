@@ -20,8 +20,8 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class AircraftModel {
     @Id
-    @Column(name = "full_model_name", unique = true, nullable = false, insertable = false, updatable = false)
-    private String fullModelName;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "full_model_name", insertable = false, updatable = false)    private String fullModelName;
 
     @NotBlank(message = "Manufacturer is required")
     @Column(length = 255, nullable = false)
@@ -35,13 +35,15 @@ public class AircraftModel {
     @Column(length = 255, nullable = false)
     private String variant;
 
-    @ManyToMany(mappedBy = "favoriteAircraftModels", fetch = FetchType.LAZY)    // alternatively use @JsonIgnore
+    @ManyToMany(mappedBy = "favoriteAircraftModels", fetch = FetchType.LAZY) // alternatively use @JsonIgnore
     private Set<User> favoritedByUsers = new HashSet<>();
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null | getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null | getClass() != o.getClass())
+            return false;
         AircraftModel that = (AircraftModel) o;
         return fullModelName.equals(that.getFullModelName());
     }
